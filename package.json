@@ -1,5 +1,5 @@
 {
-  "name": "site-react-components",
+  "name": "learn-react",
   "version": "1.0.0",
   "private": true,
   "description": "",
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wklc2014/site-react-components.git"
+    "url": "git+https://github.com/wklc2014/learn-react.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wklc2014/site-react-components/issues"
+    "url": "https://github.com/wklc2014/learn-react/issues"
   },
-  "homepage": "https://github.com/wklc2014/site-react-components#readme",
+  "homepage": "https://github.com/wklc2014/learn-react#readme",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
