@@ -1,24 +1,22 @@
-/**
- * 请求后台接口方法
- * url 接口地址
- * params 接口参数
- * options axios 的配置参数
- */
 import axios from 'axios';
-import requestAfter from './request-after.js';
+import requestHandle from './request-handle.js';
 
+/**
+ * 向后台发送请求
+ * @param  {String} url     [后台接口地址]
+ * @param  {Object} params  [后台接口接受的参数]
+ * @param  {Object} options [axios的配置参数]
+ * @return {Promise}        [后台返回结果]
+ */
 export default function request(url, params = {}, options = {}) {
-
-  // axios 配置
-  const defaultOptions = {
+  // axios 默认配置
+  const axiosDefaultOptions = {
     timeout: 10000,
-  }
-  const axiosOptions = Object.assign({}, defaultOptions, options);
+  };
+  const axiosOptions = Object.assign({}, axiosDefaultOptions, options);
 
   // 参数处理
-  const defaultParams = {
-
-  }
+  const defaultParams = {};
   const axiosParams = Object.assign({}, defaultParams, params);
 
   const { method = 'get' } = options;
@@ -30,23 +28,27 @@ export default function request(url, params = {}, options = {}) {
 
   return new Promise((resolve) => {
     axios({ ...axiosOptions, url })
-      .then((resp) => {
-        requestAfter({ resp: resp.data, url });
-        resolve(resp.data);
+      .then(resp => {
+        const response = {
+          success: true,
+          ...resp.data,
+        }
+        requestHandle({ response, url });
+        resolve(response);
       })
-      .catch((err) => {
+      .catch(err => {
         let message;
         try {
           message = err.toString();
         } catch (e) {
           message = `${url} 请求错误: ${err}`;
         }
-        const resp = {
+        const response = {
           success: false,
           message,
         }
-        requestAfter({ resp, url });
-        resolve(resp);
+        requestHandle({ response, url });
+        resolve(response);
       });
   })
 }

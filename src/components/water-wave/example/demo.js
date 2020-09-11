@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button } from 'antd';
 import SiteWaterWave from '../index.js';
 
-class SiteWaterWaveDemo extends Component {
+class Demo extends Component {
 
   static defaultProps = {
 
@@ -45,8 +45,8 @@ class SiteWaterWaveDemo extends Component {
 
 }
 
-SiteWaterWaveDemo.propTypes = {
+Demo.propTypes = {
 
 }
 
-export default SiteWaterWaveDemo;
+export default Demo;

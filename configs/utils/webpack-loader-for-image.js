@@ -1,7 +1,4 @@
-/**
- * image loader
- */
-function getLoaderForImage(env) {
+module.exports = function webpackLoaderForImage(env) {
 
   var webpack_loaders = [];
 
@@ -22,5 +19,3 @@ function getLoaderForImage(env) {
 
   return webpack_loaders;
 }
-
-module.exports = getLoaderForImage;

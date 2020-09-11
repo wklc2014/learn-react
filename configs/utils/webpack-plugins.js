@@ -1,29 +1,26 @@
-/**
- * 配置 webpack 插件系统
- */
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-var allPaths = require('../all-paths.js');
+var appPaths = require('../app-paths.js');
 
-function getWebpackPlugins(env) {
+module.exports = function webpackPlugins(env) {
 
   var webpack_plugins = [
-    new CopyWebpackPlugin(allPaths.copyWebpackPlugin),
-    new CleanWebpackPlugin(allPaths.cleanWebpackPlugin),
-    new webpack.ProvidePlugin(allPaths.webpackProvidePlugin),
+    new CopyWebpackPlugin(appPaths.copyWebpackPlugin),
+    new CleanWebpackPlugin(appPaths.cleanWebpackPlugin),
+    new webpack.ProvidePlugin(appPaths.webpackProvidePlugin),
   ];
 
-  allPaths.htmlWebpackPlugin.forEach(p => {
+  appPaths.htmlWebpackPlugin.forEach(p => {
     webpack_plugins.push(new HtmlWebpackPlugin(p));
   })
 
   var pluginsForProd = [
-    new MiniCssExtractPlugin(allPaths.miniCssExtractPlugin),
-    new UglifyJSPlugin(allPaths.uglifyJSPlugin),
+    new MiniCssExtractPlugin(appPaths.miniCssExtractPlugin),
+    new UglifyJSPlugin(appPaths.uglifyJSPlugin),
   ];
 
   var pluginsForDev = [
@@ -38,5 +35,3 @@ function getWebpackPlugins(env) {
 
   return [];
 }
-
-module.exports = getWebpackPlugins;

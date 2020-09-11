@@ -102,12 +102,6 @@ export default [{
         path: '/demo',
     },
     {
-        id: 'antd',
-        name: 'Antd',
-        icon: <MailOutlined />,
-        path: 'https://ant.design/',
-    },
-    {
         id: 'example',
         name: 'Example',
         icon: <HomeOutlined />,

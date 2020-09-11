@@ -1,12 +1,15 @@
-import '../assets/less/index.less';
-import '../assets/scripts/index.js';
+import '../assets/less/__global.less';
+import '../assets/scripts/__global.js';
 import React from 'react';
 import { render } from 'react-dom';
+import { HashRouter as Router } from "react-router-dom";
 import MainLayout from '../layouts/index.js';
-import env from '../utils/const.js';
+// import store from '../models/stores/index.js';
 
-if (env === 'development') {
-  require('../mocks/index.js');
-}
-
-render(<MainLayout />, document.getElementById('root'));
+const domRoot = document.getElementById('root');
+const App = () => (
+    <Router>
+        <MainLayout />
+    </Router>
+)
+render(<App />, domRoot);

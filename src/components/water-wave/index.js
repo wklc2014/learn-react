@@ -3,7 +3,7 @@ import propTypes from 'prop-types';
 import is from 'is_js';
 import WaterWave from './utils/water-wave.js';
 
-class WaterWave extends Component {
+class Index extends Component {
 
   static defaultProps = {
     width: 200,
@@ -91,10 +91,10 @@ class WaterWave extends Component {
   }
 }
 
-WaterWave.propTypes = {
+Index.propTypes = {
   color: propTypes.any,
   width: propTypes.number,
   height: propTypes.number,
 }
 
-export default WaterWave;
+export default Index;

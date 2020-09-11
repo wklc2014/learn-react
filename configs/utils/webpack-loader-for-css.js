@@ -1,13 +1,10 @@
-/**
- * less loader
- */
 var path = require('path');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var LessPluginAutoPrefix = require('less-plugin-autoprefix');
 var LessPluginCleanCss = require('less-plugin-clean-css');
 var LessVariables = require('./less-variables.js');
 
-function getLoaderForLess(env, type) {
+module.exports = function webpackLoaderForCss(env, type) {
 
   var webpack_loaders = [];
 
@@ -34,7 +31,6 @@ function getLoaderForLess(env, type) {
   }
 
   if (type === 'node_modules') {
-
     Object.assign(css_loader.options, {
       modules: false,
     });
@@ -58,5 +54,3 @@ function getLoaderForLess(env, type) {
 
   return webpack_loaders;
 }
-
-module.exports = getLoaderForLess;

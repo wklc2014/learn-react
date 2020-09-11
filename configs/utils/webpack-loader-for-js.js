@@ -1,7 +1,4 @@
-/**
- * js and jsx loader
- */
-function getLoaderForJavascript(env) {
+module.exports = function getLoaderForJs(env) {
 
   var webpack_loaders = [];
 
@@ -16,5 +13,3 @@ function getLoaderForJavascript(env) {
 
   return webpack_loaders;
 }
-
-module.exports = getLoaderForJavascript;

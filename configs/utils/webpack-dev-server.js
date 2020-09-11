@@ -1,13 +1,13 @@
 /**
  * 开发服务器
  */
-var allPaths = require('../all-paths.js');
+var appPaths = require('../app-paths.js');
 
 module.exports = {
-  contentBase: allPaths.devServer.contentBase,
+  contentBase: appPaths.devServer.contentBase,
   compress: true,
   host: '0.0.0.0',
-  port: allPaths.devServer.port,
+  port: appPaths.devServer.port,
   hot: true,
   overlay: true,
   inline: true,
