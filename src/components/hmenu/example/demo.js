@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Input, Button } from 'antd';
 import HMenu from '@components/hmenu/index.js';
-import configs from '@components/hmenu/example/example_config.js';
+import exampleConfigs from '@components/hmenu/example/example_config.js';
 
 class Demo extends Component {
 
@@ -11,6 +11,7 @@ class Demo extends Component {
         this.state = {
             menuActive: 'nest-b-2',
             menuKey: 'id',
+            configs: exampleConfigs,
         }
     }
 
@@ -18,8 +19,20 @@ class Demo extends Component {
         this.setState({ [key]: e.target.value });
     }
 
+    handleClick = () => {
+        const { configs } = this.state;
+        const newConfigs = configs.map(val => {
+            const item = {...val};
+            if (item.id === 'example') {
+                item.name = "一家人";
+            }
+            return item;
+        })
+        this.setState({ configs: newConfigs });
+    }
+
     render() {
-        const { menuActive, menuKey } = this.state;
+        const { menuActive, menuKey, configs } = this.state;
 
         return (
             <div>
@@ -31,7 +44,7 @@ class Demo extends Component {
                         isLink={false}
                         menuOpen={false}
                         menuKey="id"
-                        menuSingleOpen={true}
+                        menuOpenSingle={true}
                         menuApi={{
                             mode: 'horizontal',
                             // mode: 'inline',
@@ -43,11 +56,16 @@ class Demo extends Component {
                         }}
                     />
                 </div>
-                <Input
-                    style={{ width: 200 }}
-                    value={menuActive}
-                    onChange={(e) => this.handleChange(e, 'menuActive')}
-                />
+                <div className="mb16">
+                    <Input
+                        style={{ width: 200 }}
+                        value={menuActive}
+                        onChange={(e) => this.handleChange(e, 'menuActive')}
+                    />
+                </div>
+                <div className="mb16">
+                    <Button onClick={this.handleClick}>设置</Button>
+                </div>
             </div>
         )
     }

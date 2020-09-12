@@ -15,7 +15,7 @@ class HMenu extends Component {
         configs: [],
         isLink: true,
         menuApi: {},
-        menuSingleOpen: true,
+        menuOpenSingle: true,
         menuOpen: true,
         menuActive: '',
         menuKey: 'path',
@@ -23,13 +23,8 @@ class HMenu extends Component {
 
     constructor(props) {
         super(props);
-        const { configs, menuActive, menuKey, menuOpen } = props;
-        const activeKey = findActiveKey({ menuList: configs, menuActive, menuKey });
-        const fatherKey = findFatherKey({ menuList: configs, menuActive: activeKey, menuKey });
-        const initOpenKeys = menuOpen ? fatherKey : '';
-        const openKeys = initOpenKeys ? initOpenKeys.split(',') : [];
         this.state = {
-            openKeys,
+            openKeys: this.getOpenKeys(props),
         }
         this.renderMenus = this.renderMenus.bind(this);
         this.renderMenuItem = this.renderMenuItem.bind(this);
@@ -37,8 +32,22 @@ class HMenu extends Component {
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
     }
 
+    componentWillReceiveProps(nextProps) {
+        const openKeys = this.getOpenKeys(nextProps);
+        this.setState({ openKeys });
+    }
+
+    getOpenKeys(props) {
+        const { configs, menuActive, menuKey, menuOpen } = props;
+        if (!menuOpen) return [];
+        const activeKey = findActiveKey({ menuList: configs, menuActive, menuKey });
+        const fatherKey = findFatherKey({ menuList: configs, menuActive: activeKey, menuKey });
+        const openKeys = fatherKey ? fatherKey.split(',') : [];
+        return openKeys;
+    }
+
     onTitleClick({ key }) {
-        const { menuSingleOpen, configs, menuKey, menuOpen } = this.props;
+        const { menuOpenSingle, configs, menuKey, menuOpen } = this.props;
         if (!menuOpen) return;
         const { openKeys } = this.state;
         const hasOpen = openKeys.indexOf(key) !== -1;
@@ -46,7 +55,7 @@ class HMenu extends Component {
         if (hasOpen) {
             newOpenKeys = newOpenKeys.filter(v => v !== key);
         } else {
-            if (menuSingleOpen) {
+            if (menuOpenSingle) {
                 const fatherKey = findFatherKey({ menuList: configs, menuActive: key, menuKey });
                 newOpenKeys = (fatherKey + ',' + key).split(',');
             } else {
@@ -57,11 +66,11 @@ class HMenu extends Component {
     }
 
     onMenuItemClick({ key }) {
-        const { menuSingleOpen, configs, menuKey, menuOpen } = this.props;
+        const { menuOpenSingle, configs, menuKey, menuOpen } = this.props;
         const { openKeys } = this.state;
         if (!menuOpen) return;
         const fatherKey = findFatherKey({ menuList: configs, menuActive: key, menuKey });
-        if (menuSingleOpen) {
+        if (menuOpenSingle) {
             this.setState({ openKeys: fatherKey.split(',') });
         } else {
             const newOpenKeys = [...openKeys];
@@ -128,7 +137,7 @@ HMenu.propTypes = {
     configs: propTypes.array,
     isLink: propTypes.bool,
     menuApi: propTypes.object,
-    menuSingleOpen: propTypes.bool,
+    menuOpenSingle: propTypes.bool,
     menuOpen: propTypes.bool,
     menuActive: propTypes.string,
     menuKey: propTypes.string,
