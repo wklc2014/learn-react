@@ -61,6 +61,7 @@
     "path-to-regexp": "^6.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
+    "react-copy-to-clipboard": "^5.0.2",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.8.6",
     "react-redux": "^7.1.0",

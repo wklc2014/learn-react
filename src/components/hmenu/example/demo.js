@@ -22,8 +22,6 @@ class Demo extends Component {
             menuKey: 'id',
             configs: exampleConfigs,
             mode: 'horizontal',
-            // mode: 'vertical',
-            mode: 'inline',
             theme: 'light',
             menuOpen: false,
             menuOpenSingle: false,
