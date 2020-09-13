@@ -21,7 +21,7 @@ function NewsRoutes(props) {
                 <Link to={'/example/103'}>Example 103</Link>
             </li>
             <li>
-                <Link to={'/nest/b'}>Example b</Link>
+                <Link to={'/nest/b/2'}>Example B-2</Link>
             </li>
         </ul>
         <Route path="/example/:id?" component={Example} />

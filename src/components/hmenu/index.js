@@ -1,5 +1,7 @@
 /**
  * 菜单导航
+ * inline 模式下，菜单展开可控，HMenu组件state控制
+ * vertical/horizontal 模式下，菜单展开不可控，Menu组件内部控制
  */
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
@@ -16,15 +18,15 @@ class HMenu extends Component {
         isLink: true,
         menuApi: {},
         menuOpenSingle: true,
-        menuOpen: true,
-        menuActive: '',
+        menuSelected: '',
         menuKey: 'path',
     }
 
     constructor(props) {
         super(props);
         this.state = {
-            openKeys: this.getOpenKeys(props),
+            openKeys: findOpenKeys(props),
+            prevOpenKeys: [],
         }
         this.renderMenus = this.renderMenus.bind(this);
         this.renderMenuItem = this.renderMenuItem.bind(this);
@@ -32,23 +34,19 @@ class HMenu extends Component {
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
-        const openKeys = this.getOpenKeys(nextProps);
-        this.setState({ openKeys });
+    static getDerivedStateFromProps(nextProps, prevState) {
+        const openKeys = findOpenKeys(nextProps);
+        if (JSON.stringify(prevState.prevOpenKeys) !== JSON.stringify(openKeys)) {
+            return { openKeys, prevOpenKeys: openKeys };
+        }
+        return null;
     }
 
-    getOpenKeys(props) {
-        const { configs, menuActive, menuKey, menuOpen } = props;
-        if (!menuOpen) return [];
-        const activeKey = findActiveKey({ menuList: configs, menuActive, menuKey });
-        const fatherKey = findFatherKey({ menuList: configs, menuActive: activeKey, menuKey });
-        const openKeys = fatherKey ? fatherKey.split(',') : [];
-        return openKeys;
-    }
-
+    // 子菜单标题点击
     onTitleClick({ key }) {
-        const { menuOpenSingle, configs, menuKey, menuOpen } = this.props;
-        if (!menuOpen) return;
+        const menuCanOpen = checkMenuCanOpen(this.props);
+        if (!menuCanOpen) return;
+        const { menuOpenSingle, configs, menuKey } = this.props;
         const { openKeys } = this.state;
         const hasOpen = openKeys.indexOf(key) !== -1;
         let newOpenKeys = [...openKeys];
@@ -56,7 +54,7 @@ class HMenu extends Component {
             newOpenKeys = newOpenKeys.filter(v => v !== key);
         } else {
             if (menuOpenSingle) {
-                const fatherKey = findFatherKey({ menuList: configs, menuActive: key, menuKey });
+                const fatherKey = findFatherKey({ menuList: configs, menuSelected: key, menuKey });
                 newOpenKeys = (fatherKey + ',' + key).split(',');
             } else {
                 newOpenKeys.push(key);
@@ -65,22 +63,24 @@ class HMenu extends Component {
         this.setState({ openKeys: newOpenKeys });
     }
 
+    // 菜单元素点击
     onMenuItemClick({ key }) {
-        const { menuOpenSingle, configs, menuKey, menuOpen } = this.props;
+        const { menuOpenSingle, configs, menuKey } = this.props;
+        const menuCanOpen = checkMenuCanOpen(this.props);
+        if (!menuCanOpen) return;
+        const fatherKey = findFatherKey({ menuList: configs, menuSelected: key, menuKey });
         const { openKeys } = this.state;
-        if (!menuOpen) return;
-        const fatherKey = findFatherKey({ menuList: configs, menuActive: key, menuKey });
+        let newOpenKeys = [...openKeys];
         if (menuOpenSingle) {
-            this.setState({ openKeys: fatherKey.split(',') });
+            newOpenKeys = fatherKey.split(',');
         } else {
-            const newOpenKeys = [...openKeys];
             fatherKey.split(',').forEach(v => {
                 if (newOpenKeys.indexOf(v) === -1) {
                     newOpenKeys.push(v);
                 }
             })
-            this.setState({ openKeys: newOpenKeys });
         }
+        this.setState({ openKeys: newOpenKeys });
     }
 
     // 渲染菜单
@@ -116,15 +116,16 @@ class HMenu extends Component {
     }
 
     render() {
-        const { configs, menuApi, menuActive, menuKey, menuOpen } = this.props;
+        const { configs, menuApi, menuSelected, menuKey } = this.props;
         const { openKeys } = this.state;
-        const activeKey = findActiveKey({ menuList: configs, menuActive, menuKey });
+        const menuCanOpen = checkMenuCanOpen(this.props);
+        const selectedKey = findSelectedKey({ menuList: configs, menuSelected, menuKey });
         const MenuProps = {
-            selectedKeys: [activeKey],
+            selectedKeys: [selectedKey],
             ...menuApi,
         }
 
-        if (menuOpen) {
+        if (menuCanOpen) {
             MenuProps.openKeys = openKeys;
         }
 
@@ -138,16 +139,33 @@ HMenu.propTypes = {
     isLink: propTypes.bool,
     menuApi: propTypes.object,
     menuOpenSingle: propTypes.bool,
-    menuOpen: propTypes.bool,
-    menuActive: propTypes.string,
+    menuSelected: propTypes.string,
     menuKey: propTypes.string,
 }
 
 export default HMenu;
 
+// 根据props映射 state.openKeys
+function findOpenKeys(props) {
+    const { configs, menuSelected, menuKey } = props || {};
+    const menuCanOpen = checkMenuCanOpen(props);
+    if (!menuCanOpen) return [];
+    const activeKey = findSelectedKey({ menuList: configs, menuSelected, menuKey });
+    const fatherKey = findFatherKey({ menuList: configs, menuSelected: activeKey, menuKey });
+    const openKeys = fatherKey ? fatherKey.split(',') : [];
+    return openKeys;
+}
+
+// 根据props检查是否展开菜单
+// inline 模式下，一定可以展开菜单
+function checkMenuCanOpen(props) {
+    const { menuApi } = props || {};
+    return menuApi.mode === 'inline';
+}
+
 // 查找高亮菜单
-function findActiveKey(params) {
-    const { menuList, menuActive, menuKey } = params || {};
+function findSelectedKey(params) {
+    const { menuList, menuSelected, menuKey } = params || {};
 
     function func_find(_array, _father = '') {
         let activeKey = '';
@@ -162,13 +180,13 @@ function findActiveKey(params) {
                 }
             } else {
                 let isActive = false;
-                if (value === menuActive) {
+                if (value === menuSelected) {
                     isActive = true;
                 } else if (_item.active) {
                     const checkList = isArray(_item.active) ? _item.active : [_item.active];
                     checkList.some(v => {
                         const reg = pathToRegexp(v);
-                        const result = reg.exec(menuActive);
+                        const result = reg.exec(menuSelected);
                         if (result) {
                             isActive = true;
                         }
@@ -193,7 +211,7 @@ function findActiveKey(params) {
 // 获取目标菜单的祖先菜单
 // 或所有的祖先菜单
 function findFatherKey(_params) {
-    const { menuList, menuActive, menuKey } = _params || {};
+    const { menuList, menuSelected, menuKey } = _params || {};
     const result = {};
 
     function func_find(_array, _father = '') {
@@ -212,8 +230,8 @@ function findFatherKey(_params) {
         func_find(menuList);
     }
 
-    if (menuActive !== undefined) {
-        return result[menuActive] || '';
+    if (menuSelected !== undefined) {
+        return result[menuSelected] || '';
     }
 
     return result;

@@ -40,7 +40,7 @@ class MainLayout extends Component {
                     <div className={styles.logo}>React</div>
                     <HMenu
                         configs={navConfigs}
-                        menuActive={location.pathname}
+                        menuSelected={location.pathname}
                         menuApi={{
                             theme: 'dark',
                             mode: 'inline',
