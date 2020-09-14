@@ -8,32 +8,32 @@ class Home extends Component {
 
   }
 
-  currentUrl = window.location.href;
-
   constructor(props) {
     super(props);
     this.state = {
-      count: 1,
     }
-    this.handleClick = this.handleClick.bind(this);
+    this.handleIncrease = this.handleIncrease.bind(this);
+    this.handleDecrease = this.handleDecrease.bind(this);
   }
 
-  handleClick() {
-    this.setState({
-      count: this.state.count + 1,
-    })
+  handleIncrease() {
+    this.props.increase(1);
   }
-  componentDidMount() {
+
+  handleDecrease() {
+    this.props.decrease(1);
   }
 
   render() {
-    const { count } = this.state;
+    const { count } = this.props;
 
     return (
       <div>
         <h2>Home</h2>
+        <p>{count}</p>
         <div>
-          <Button onClick={this.handleClick}>{count}</Button>
+          <Button className="mr16" onClick={this.handleIncrease}>+</Button>
+          <Button onClick={this.handleDecrease}>-</Button>
         </div>
       </div>
     );
@@ -44,4 +44,4 @@ Home.propTypes = {
 
 }
 
-export default withRouter(Home);
+export default Home;

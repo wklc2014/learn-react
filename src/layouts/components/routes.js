@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Route, Switch } from "react-router-dom";
-import Home from '@pages/home/index.js';
+import Home from '@pages/home/container.js';
 import Demo from '@pages/demo/index.js';
 import NewsRoutes from '@layouts/components/news-routes.js';
 import NestRoutes from '@layouts/components/nest-routes.js';
