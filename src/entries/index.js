@@ -3,13 +3,25 @@ import '../assets/scripts/__global.js';
 import React from 'react';
 import { render } from 'react-dom';
 import { HashRouter as Router } from "react-router-dom";
-import MainLayout from '../layouts/index.js';
-// import store from '../models/stores/index.js';
+import { Provider } from 'react-redux';
+import MainLayout from '@layouts/index.js';
+import mirror from '@components/mirror/index.js';
+import userModel from '@/components/mirror/example/user.js';
+import carModel from '@/components/mirror/example/car.js';
+import mirrorLoading from '@components/mirror/mirror-loading.js';
 
-const domRoot = document.getElementById('root');
+mirror.model(userModel);
+mirror.model(carModel);
+const store = mirror.init({ loading: {} });
+
+console.log('mirror>>>', mirror);
+
 const App = () => (
-    <Router>
-        <MainLayout />
-    </Router>
-)
-render(<App />, domRoot);
+    <Provider store={store}>
+        <Router>
+            <MainLayout />
+        </Router>
+    </Provider>
+);
+
+render(<App />, document.getElementById('root'));
