@@ -1,19 +1,18 @@
 function createModel(configs) {
 
-    const createReducer = (loading) => (state, { name, action }) => {
+    const createReducer = (loading) => (state, { payload }) => {
+        const { namespace, action } = payload;
         const newState = Object.assign({}, state, {
             global: loading,
             models: {
                 ...state.models,
-                [name]: loading,
+                [namespace]: loading,
             },
         });
         if (configs.effects) {
             newState.effects = Object.assign({}, state.effects, {
-                [name]: Object.assign({}, state.effects[name], {
-                    [action]: loading,
-                })
-            })
+                [`${namespace}/${action}`]: loading,
+            });
         }
         return newState;
     }
@@ -22,6 +21,7 @@ function createModel(configs) {
         name: configs.name,
         state: {
             global: false,
+            models: {},
         },
         reducers: {
             show: createReducer(true),
@@ -40,11 +40,14 @@ function createActions(mirror, configs) {
                 // copy function
                 const fn = mirror.actions[namespace][action];
                 // replace function with pre & post loading calls
-                mirror.actions[namespace][action] = async function() {
-                    mirror.actions.loading.show({ namespace, action })
-                    await fn(...arguments);
-                    mirror.actions.loading.hide({ namespace, action })
-                }
+                mirror.actions[namespace][action] = mirror.actions[namespace][action];
+                // mirror.actions[namespace][action] = async function() {
+                //     console.log('1>>>', 1);
+                //     // mirror.actions.loading.show({ namespace, action })
+                //     await fn(...arguments);
+                //     console.log('2>>>', 2);
+                //     // mirror.actions.loading.hide({ namespace, action })
+                // }
             }
         })
     })
@@ -55,8 +58,7 @@ export default function(mirror, configs) {
         name: 'loading',
         effects: true,
     }, configs);
-    console.log('mirror>>>', mirror);
     const model = createModel(newConfigs);
     mirror.model(model);
-    createActions(mirror, newConfigs);
+    // createActions(mirror, newConfigs);
 }

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom';
 import { Button, Spin } from 'antd';
-import mirror from '@components/mirror/index.js';
+import mirror from '@models/index.js';
 
 @connect((state) => {
-    // console.log('home state>>>', state);
+    // console.log('state>>>', state);
     return {
         count: state.user.count,
         app: state.car.app,
@@ -16,6 +16,8 @@ class Home extends Component {
 
     static defaultProps = {
         count: 0,
+        loading: false,
+        app: 'null',
     }
 
     constructor(props) {
@@ -39,10 +41,12 @@ class Home extends Component {
             type: 'user/fetch',
             payload: '成都',
         })
+        // mirror.actions.user.fetch('成都');
     }
 
     render() {
         const { count, app, loading } = this.props;
+        console.log('loading>>>', loading);
         return (
             <Spin spinning={loading}>
                 <h2>Home</h2>

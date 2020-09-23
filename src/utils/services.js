@@ -4,6 +4,6 @@ export function zmCustormCard(params) {
     return new Promise(function(resolve, reject) {
         setTimeout(function(){
             resolve(params);
-        }, 1200);
+        }, 2200);
     })
 }
