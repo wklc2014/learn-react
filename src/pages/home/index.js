@@ -1,43 +1,60 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, Spin } from 'antd';
+import mirror from '@components/mirror/index.js';
 
+@connect((state) => {
+    // console.log('home state>>>', state);
+    return {
+        count: state.user.count,
+        app: state.car.app,
+        loading: state.loading.global,
+    };
+})
 class Home extends Component {
 
-  static defaultProps = {
-
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
+    static defaultProps = {
+        count: 0,
     }
-    this.handleIncrease = this.handleIncrease.bind(this);
-    this.handleDecrease = this.handleDecrease.bind(this);
-  }
 
-  handleIncrease() {
-    this.props.increase(1);
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            // count: 1,
+        }
+        this.handleClick = this.handleClick.bind(this);
+        this.handleFetch = this.handleFetch.bind(this);
+    }
 
-  handleDecrease() {
-    this.props.decrease(1);
-  }
+    handleClick() {
+        this.props.dispatch({
+            type: 'user/addCount',
+            payload: 2,
+        })
+    }
 
-  render() {
-    const { count } = this.props;
+    handleFetch() {
+        this.props.dispatch({
+            type: 'user/fetch',
+            payload: '成都',
+        })
+    }
 
-    return (
-      <div>
-        <h2>Home</h2>
-        <p>{count}</p>
-        <div>
-          <Button className="mr16" onClick={this.handleIncrease}>+</Button>
-          <Button onClick={this.handleDecrease}>-</Button>
-        </div>
-      </div>
-    );
-  }
+    render() {
+        const { count, app, loading } = this.props;
+        return (
+            <Spin spinning={loading}>
+                <h2>Home</h2>
+                <div className="mb16">
+                    <Button onClick={this.handleClick}>{count}</Button>
+                </div>
+                <div>
+                    <Button onClick={this.handleFetch}>{app}</Button>
+                </div>
+            </Spin>
+        );
+    }
 }
 
 Home.propTypes = {
