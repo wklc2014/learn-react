@@ -1,6 +1,0 @@
-export default {
-  'ADD_AMOUNT': 'ADD_AMOUNT',
-  'REDUCE_AMOUNT': 'REDUCE_AMOUNT',
-  'UPDATE_CITY_NAMES': 'user/fetch',
-  'LOADING_CITY_NAMES': 'LOADING_CITY_NAMES',
-}

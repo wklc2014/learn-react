@@ -4,20 +4,19 @@ import thunkMiddleware from 'redux-thunk';
 
 export default function HModel() {
     this.store = null;
-    this.models = [];
+    this.reducers = {};
     this.effects = {};
+
     this.actions = {};
     this.dispatch = warning;
     this.getState = warning;
 }
 
-// install plugin
-HModel.prototype.install = function(plugin, config) {
+HModel.prototype.use = function(Plugin, configs) {
     try {
-        plugin(this, config);
+      const plugin = new Plugin(this, configs);
     } catch (e) {
-        console.error('HModel install>>>', e);
-        throw new Error('plugin must a method.', e);
+      throw new Error('HModel plugins error: ' + e);
     }
 }
 
@@ -39,24 +38,18 @@ HModel.prototype.createStore = function(middlewares = []) {
         }
     }
 
-    // merge reducers
-    function createReducer(models) {
-        const modelReducers = {};
-        models.forEach((model, idx) => {
-            modelReducers[model.name] = model.reducer;
-        });
-        return combineReducers(modelReducers);
-    }
-
-    const allMiddlewares = [
+    const middleware = applyMiddleware(
         thunkMiddleware,
+        routerMiddleware(),
         ...middlewares,
-        // createMiddleware(),
-    ];
+        createMiddleware(),
+    );
 
-    // 将 this.models 合并成根 reducer
-    const rootReducer = createReducer(this.models);
-    const enhancers = [applyMiddleware(...allMiddlewares)];
+    const rootReducer = combineReducers({
+        ...self.reducers,
+        routing: routerReducer,
+    });
+    const enhancers = [middleware];
     const enhancer = compose(...enhancers);
     this.store = createStore(rootReducer, enhancer);
     return this.store;
@@ -64,31 +57,14 @@ HModel.prototype.createStore = function(middlewares = []) {
 
 // change modelConfig to model
 HModel.prototype.model = function(modelConfig) {
-
-    function getReducer(reducers, state = null) {
-        return (initState = state, action) => {
-            if (isFunction(reducers[action.type])) {
-                return reducers[action.type](initState, action);
-            }
-            return state;
-        }
-    }
-
-    function resolveReducers(modelName, reducers = {}) {
-        const newReducers = {};
-        Object.keys(reducers).forEach(actionName => {
-            newReducers[`${modelName}/${actionName}`] = reducers[actionName];
-        });
-        return newReducers;
-    }
-
-    const { name, state, reducers, effects } = this.validateModel(modelConfig);
-    const reducer = getReducer(resolveReducers(name, reducers), state);
-    this.models.push({ name, reducer });
-    this.addActions(name, reducers, effects);
+    const self = this;
+    const { name, state, reducers, effects } = self.validateModel(modelConfig);
+    self.createActions(name, reducers, effects);
+    self.createReducers(name, reducers, state);
+    self.createEffects(name, effects);
 }
 
-HModel.prototype.addActions = function(modelName, reducers = {}, effects = {}) {
+HModel.prototype.createActions = function(modelName, reducers = {}, effects = {}) {
     const self = this;
     const reducerKeys = Object.keys(reducers);
     const effectKeys = Object.keys(effects);
@@ -114,22 +90,43 @@ HModel.prototype.addActions = function(modelName, reducers = {}, effects = {}) {
         if (self.actions[modelName][effectName]) {
             throw new Error(`Action name "${effectName}" has been used! Please select another name as effect name!`);
         }
-        // self.effects[`${modelName}/${effectName}`] = effects[effectName];
-        self.effects[`${modelName}/${effectName}`] = async function() {
-            // self.dispatch({
-            //     type: 'loading/show',
-            //     payload: { namespace: modelName, action: effectName }
-            // });
-            await effects[effectName](...arguments);
-        }
         self.actions[modelName][effectName] = actionCreator(modelName, effectName);
         self.actions[modelName][effectName].isEffect = true;
     })
 }
 
+HModel.prototype.createEffects = function(modelName, effects = {}) {
+    const self = this;
+
+    Object.keys(effects).forEach(effectName => {
+        self.effects[`${modelName}/${effectName}`] = effects[effectName];
+    })
+}
+
+HModel.prototype.createReducers = function(modelName, reducers = {}, initState) {
+    const self = this;
+
+    function resolveReducers(modelName, reducers = {}) {
+        const newReducers = {};
+        Object.keys(reducers).forEach(actionName => {
+            newReducers[`${modelName}/${actionName}`] = reducers[actionName];
+        });
+        return newReducers;
+    }
+
+    const reducer = resolveReducers(modelName, reducers);
+
+    self.reducers[modelName] = function(state = initState, action) {
+        if (reducer[action.type]) {
+            return reducer[action.type](state, action);
+        }
+        return state;
+    }
+}
+
 // 验证 modelConfig
 HModel.prototype.validateModel = function(modelConfig) {
-    const { name, state, reducers, effects } = modelConfig || {};
+    const { name, state = {}, reducers, effects } = modelConfig || {};
 
     // model.name 必须是字符串
     if (!name || typeof name !== 'string') {
@@ -141,8 +138,7 @@ HModel.prototype.validateModel = function(modelConfig) {
     }
 
     // model 不能重复创建
-    const hasCreated = this.models.find(item => item.name === name);
-    if (hasCreated) {
+    if (this.reducers[name]) {
         throw new Error(`Model "${name}" has been created, please select another name!`);
     }
 
@@ -176,11 +172,6 @@ HModel.prototype.validateModel = function(modelConfig) {
 // 检查给定值是否是对象
 function isObject(value) {
     return Object.prototype.toString.call(value) === '[object Object]';
-}
-
-// 检查给定值是否是数组
-function isArray(value) {
-    return Object.prototype.toString.call(value) === '[object Array]';
 }
 
 // 检查给定值是否是 Function

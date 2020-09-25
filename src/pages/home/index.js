@@ -2,17 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom';
 import { Button, Spin } from 'antd';
-import { getAuthToken, addAmount } from '@models/redux/action-creators/action-example.js';
 import mirror from '@models/mirror/index.js';
-
-const dispatch = () => {
-    return { dispatch: () => {
-        console.log('dispatch>>>', 1);
-    } }
-}
 
 @connect((state) => {
     const { car = {}, user = {}, loading = {} } = state;
+    console.log('loading>>>', loading.global);
     return {
         count: user.count,
         address: user.address,
@@ -20,7 +14,6 @@ const dispatch = () => {
         loading: loading.global,
     };
 })
-@dispatch
 class Home extends Component {
 
     static defaultProps = {
@@ -46,7 +39,11 @@ class Home extends Component {
     }
 
     handleFetch() {
-
+        this.props.dispatch({
+            type: 'user/fetch',
+            payload: '北京',
+        })
+        // mirror.actions.user.fetch('天津');
     }
 
     render() {

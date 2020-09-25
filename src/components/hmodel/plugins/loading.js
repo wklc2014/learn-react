@@ -1,82 +1,64 @@
-export function createModel(configs) {
-    const { name, effects } = configs;
+export default function HModelLoading(hmodel = {}, configs = {}) {
+    this.hmodel = hmodel;
+    this.configs = Object.assign({}, {
+        name: 'loading',
+        effects: true,
+    }, configs);
+    this.createModel();
+    this.createActions();
+}
 
-    const createReducer = (state, { payload }) => {
-        console.log('state>>>', state);
+HModelLoading.prototype.createModel = function() {
+    const { name, effects } = this.configs;
+
+    const createReducer = (loading) => (state, { payload }) => {
         const { namespace, action } = payload || {};
         const newState = Object.assign({}, state, {
-            global: true,
+            global: loading,
             models: {
                 ...state.models,
-                [namespace]: true,
+                [namespace]: loading,
             },
         });
-        // if (effects) {
-        //     newState.effects = Object.assign({}, state.effects, {
-        //         [`${namespace}/${action}`]: loading,
-        //     });
-        // }
-        console.log('newState>>>', newState);
+        if (effects) {
+            newState.effects = Object.assign({}, state.effects, {
+                [`${namespace}/${action}`]: loading,
+            });
+        }
         return newState;
     }
 
-    // if (options.effects) {
-    //     // collect initial models for effects and create empty objects
-    //     model.initialState.effects = Object.keys(mirror.actions || {})
-    //         .reduce((models, namespace) => {
-    //             models[namespace] = {}
-    //             return models
-    //         }, {})
-    // }
-
-    return {
+    const model = {
         name,
         state: {
             global: false,
             models: {},
         },
         reducers: {
-            show: createReducer,
-            // hide: createReducer(false),
+            show: createReducer(true),
+            hide: createReducer(false),
         }
     }
+
+    this.hmodel.model(model);
 }
 
-function createActions(hmodel, configs) {
-    console.log('hmodel>>>', hmodel);
-    Object.keys(hmodel.actions).forEach(namespace => {
-        if (namespace === configs.name) { return }
-        const modelActions = hmodel.actions[namespace];
+HModelLoading.prototype.createActions = function() {
+    const { configs, hmodel: { actions, effects, dispatch } } = this;
+    Object.keys(actions).forEach(namespace => {
+        if (namespace === configs.name || !actions[namespace]) return;
         // map over effects within models
-        Object.keys(modelActions).forEach(action => {
-            if (hmodel.actions[namespace][action].isEffect) {
+        Object.keys(actions[namespace]).forEach(action => {
+            if (actions[namespace][action].isEffect && effects[`${namespace}/${action}`]) {
                 // copy function
-                const fn = hmodel.actions[namespace][action];
+                const fn = effects[`${namespace}/${action}`];
                 // replace function with pre & post loading calls
-                hmodel.actions[namespace][action] = async function() {
-                    // hmodel.actions.loading.show({ namespace, action })
-                    hmodel.dispatch({
-                        type: 'loading/show',
-                        payload: { namespace, action }
-                    });
+                effects[`${namespace}/${action}`] = async function() {
+                    actions.loading.show({ namespace, action });
                     await fn(...arguments);
-                    hmodel.dispatch({
-                        type: 'loading/hide',
-                        payload: { namespace, action }
-                    });
-                    // hmodel.actions.loading.hide({ namespace, action })
+                    actions.loading.hide({ namespace, action });
                 }
             }
         })
     })
-}
-
-export default function(hmodel, configs) {
-    const newConfigs = Object.assign({}, {
-        name: 'loading',
-        effects: true,
-    }, configs);
-    const model = createModel(newConfigs);
-    hmodel.model(model);
-    // createActions(hmodel, newConfigs);
 }
