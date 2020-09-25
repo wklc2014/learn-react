@@ -1,4 +1,3 @@
-import mirror from '@components/mirror/index.js';
 import { zmCustormCard } from '@utils/services.js';
 
 export default {
@@ -10,7 +9,7 @@ export default {
         count: 24,
     },
     reducers: {
-        updateUser(state, { payload }) {
+        update(state, { payload }) {
             return {
                 ...state,
                 ...payload,
@@ -25,9 +24,15 @@ export default {
     },
     effects: {
         async fetch({ payload }, { getState, dispatch }) {
-            const data = await zmCustormCard(payload);
-            console.log('data>>>', data);
-            dispatch({ type: 'car/changeApp', payload: data });
+            // dispatch({
+            //     type: 'loading/show',
+            //     payload: { namespace: 'user', action: 'effects/fetch' }
+            // });
+            dispatch({ type: 'car/update', payload: { app: 'IE' } });
+            const data = '绵阳';
+            // const data = await zmCustormCard(payload);
+            // console.log('data>>>', data);
+            dispatch({ type: 'user/update', payload: { address: data } });
         },
     },
 }

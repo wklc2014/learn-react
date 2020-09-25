@@ -6,10 +6,11 @@ export default {
         app: 'chrome',
     },
     reducers: {
-        changeApp(state, { payload }) {
+        update(state, { payload }) {
+            console.log('arguments>>>', arguments);
             return {
                 ...state,
-                app: payload,
+                ...payload,
             }
         }
     },

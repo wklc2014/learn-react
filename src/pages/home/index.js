@@ -2,16 +2,25 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom';
 import { Button, Spin } from 'antd';
-import mirror from '@models/index.js';
+import { getAuthToken, addAmount } from '@models/redux/action-creators/action-example.js';
+import mirror from '@models/mirror/index.js';
+
+const dispatch = () => {
+    return { dispatch: () => {
+        console.log('dispatch>>>', 1);
+    } }
+}
 
 @connect((state) => {
-    // console.log('state>>>', state);
+    const { car = {}, user = {}, loading = {} } = state;
     return {
-        count: state.user.count,
-        app: state.car.app,
-        loading: state.loading.global,
+        count: user.count,
+        address: user.address,
+        app: car.app,
+        loading: loading.global,
     };
 })
+@dispatch
 class Home extends Component {
 
     static defaultProps = {
@@ -37,19 +46,17 @@ class Home extends Component {
     }
 
     handleFetch() {
-        this.props.dispatch({
-            type: 'user/fetch',
-            payload: '成都',
-        })
-        // mirror.actions.user.fetch('成都');
+
     }
 
     render() {
-        const { count, app, loading } = this.props;
-        console.log('loading>>>', loading);
+        const { count, app, loading, address } = this.props;
+        // console.log('loading>>>', loading);
         return (
             <Spin spinning={loading}>
                 <h2>Home</h2>
+                <p>address: {address}</p>
+                <p>app: {app}</p>
                 <div className="mb16">
                     <Button onClick={this.handleClick}>{count}</Button>
                 </div>

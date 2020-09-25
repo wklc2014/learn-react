@@ -2,7 +2,7 @@ import { applyMiddleware, compose, createStore, combineReducers } from 'redux';
 import { routerReducer, routerMiddleware } from 'react-router-redux';
 import thunkMiddleware from 'redux-thunk';
 
-export default function Mirror() {
+export default function HModel() {
     this.store = null;
     this.models = [];
     this.effects = {};
@@ -11,17 +11,18 @@ export default function Mirror() {
     this.getState = warning;
 }
 
-Mirror.prototype.install = function(plugin, config) {
+// install plugin
+HModel.prototype.install = function(plugin, config) {
     try {
         plugin(this, config);
     } catch (e) {
-        console.error('mirror install>>>', e);
+        console.error('HModel install>>>', e);
         throw new Error('plugin must a method.', e);
     }
 }
 
 // createStore by middlewares
-Mirror.prototype.createStore = function(middlewares = []) {
+HModel.prototype.createStore = function(middlewares = []) {
     const self = this;
 
     function createMiddleware() {
@@ -38,12 +39,6 @@ Mirror.prototype.createStore = function(middlewares = []) {
         }
     }
 
-    const totalMiddlewares = [
-        thunkMiddleware,
-        ...middlewares,
-        createMiddleware(),
-    ];
-
     // merge reducers
     function createReducer(models) {
         const modelReducers = {};
@@ -53,15 +48,22 @@ Mirror.prototype.createStore = function(middlewares = []) {
         return combineReducers(modelReducers);
     }
 
-    // 将 options.models 合并成根 reducer
-    const reducer = createReducer(this.models);
-    const enhancers = [applyMiddleware(...totalMiddlewares)];
+    const allMiddlewares = [
+        thunkMiddleware,
+        ...middlewares,
+        // createMiddleware(),
+    ];
+
+    // 将 this.models 合并成根 reducer
+    const rootReducer = createReducer(this.models);
+    const enhancers = [applyMiddleware(...allMiddlewares)];
     const enhancer = compose(...enhancers);
-    this.store = createStore(reducer, enhancer);
+    this.store = createStore(rootReducer, enhancer);
     return this.store;
 }
 
-Mirror.prototype.model = function(modelConfig) {
+// change modelConfig to model
+HModel.prototype.model = function(modelConfig) {
 
     function getReducer(reducers, state = null) {
         return (initState = state, action) => {
@@ -86,14 +88,14 @@ Mirror.prototype.model = function(modelConfig) {
     this.addActions(name, reducers, effects);
 }
 
-Mirror.prototype.addActions = function(modelName, reducers = {}, effects = {}) {
+HModel.prototype.addActions = function(modelName, reducers = {}, effects = {}) {
     const self = this;
     const reducerKeys = Object.keys(reducers);
     const effectKeys = Object.keys(effects);
 
     function actionCreator(modelName, actionName) {
         return payload => {
-            self.dispatch({
+            self.store.dispatch({
                 type: `${modelName}/${actionName}`,
                 payload,
             })
@@ -112,14 +114,21 @@ Mirror.prototype.addActions = function(modelName, reducers = {}, effects = {}) {
         if (self.actions[modelName][effectName]) {
             throw new Error(`Action name "${effectName}" has been used! Please select another name as effect name!`);
         }
-        self.effects[`${modelName}/${effectName}`] = effects[effectName];
+        // self.effects[`${modelName}/${effectName}`] = effects[effectName];
+        self.effects[`${modelName}/${effectName}`] = async function() {
+            // self.dispatch({
+            //     type: 'loading/show',
+            //     payload: { namespace: modelName, action: effectName }
+            // });
+            await effects[effectName](...arguments);
+        }
         self.actions[modelName][effectName] = actionCreator(modelName, effectName);
         self.actions[modelName][effectName].isEffect = true;
     })
 }
 
-// 验证 model
-Mirror.prototype.validateModel = function(modelConfig) {
+// 验证 modelConfig
+HModel.prototype.validateModel = function(modelConfig) {
     const { name, state, reducers, effects } = modelConfig || {};
 
     // model.name 必须是字符串
@@ -149,7 +158,6 @@ Mirror.prototype.validateModel = function(modelConfig) {
         if (!reducers) return {};
         const filters = {};
         Object.keys(reducers).forEach(key => {
-            // 确保 reducers.* 是函数
             if (isFunction(reducers[key])) {
                 filters[key] = reducers[key];
             }
@@ -182,7 +190,7 @@ function isFunction(value) {
 
 function warning() {
     throw new Error(
-        'You are calling "dispatch" or "getState" without applying mirrorMiddleware! ' +
-        'Please create your store with mirrorMiddleware first!'
+        'You are calling "dispatch" or "getState" without applying Middleware! ' +
+        'Please create your store with Middleware first!'
     )
 }
