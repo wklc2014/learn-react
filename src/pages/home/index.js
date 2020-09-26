@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom';
 import { Button, Spin } from 'antd';
-import mirror from '@models/mirror/index.js';
+import hmodel from '@models/index.js';
 
 @connect((state) => {
     const { car = {}, user = {}, loading = {} } = state;
@@ -43,7 +43,7 @@ class Home extends Component {
             type: 'user/fetch',
             payload: '北京',
         })
-        // mirror.actions.user.fetch('天津');
+        // hmodel.actions.user.fetch('天津');
     }
 
     render() {

@@ -1,7 +1,7 @@
 import HModel from '@components/hmodel/index.js';
 import HModelLoading from '@/components/hmodel/plugins/loading.js';
-import userModel from '@/models/mirror/user.js';
-import carModel from '@/models/mirror/car.js';
+import userModel from '@/models/user.js';
+import carModel from '@/models/car.js';
 
 const middlewares = []
 if (process.env.NODE_ENV !== 'production') {

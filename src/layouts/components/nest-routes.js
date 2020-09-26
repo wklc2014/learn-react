@@ -14,7 +14,7 @@ function NestRoutes(props) {
         <HMenu
             configs={nestConfig}
             menuOpen={false}
-            menuActive={location.pathname}
+            menuSelected={location.pathname}
             menuApi={{
                 theme: 'light',
                 mode: 'horizontal',

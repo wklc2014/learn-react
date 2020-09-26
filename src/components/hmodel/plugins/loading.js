@@ -1,9 +1,13 @@
-export default function HModelLoading(hmodel = {}, configs = {}) {
-    this.hmodel = hmodel;
+export default function HModelLoading(configs = {}) {
     this.configs = Object.assign({}, {
         name: 'loading',
         effects: true,
     }, configs);
+}
+
+HModelLoading.prototype.start = function(hmodel) {
+    if (!hmodel) return;
+    this.hmodel = hmodel;
     this.createModel();
     this.createActions();
 }

@@ -14,7 +14,8 @@ export default function HModel() {
 
 HModel.prototype.use = function(Plugin, configs) {
     try {
-      const plugin = new Plugin(this, configs);
+      const plugin = new Plugin(configs);
+      plugin.start(this);
     } catch (e) {
       throw new Error('HModel plugins error: ' + e);
     }
