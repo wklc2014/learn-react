@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Form, Input, Button, Select, Radio, Checkbox } from 'antd';
 import HMenu from '@components/hmenu/index.js';
-import exampleConfigs from '@components/hmenu/example/example_config.js';
+import demoConfigs from '@components/hmenu/demo/configs.js';
 
 const layout = {
     labelCol: { span: 4 },
@@ -20,7 +20,7 @@ class Demo extends Component {
         this.state = {
             menuSelected: 'nest-b-2',
             menuKey: 'id',
-            configs: exampleConfigs,
+            configs: demoConfigs,
             mode: 'horizontal',
             theme: 'light',
             menuOpen: false,

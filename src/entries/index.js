@@ -7,7 +7,6 @@ import { HashRouter as Router } from "react-router-dom";
 import MainLayout from '@layouts/index.js';
 import hmodel from '@models/index.js';
 const { store } = hmodel;
-// import store from '@models/redux/index.js';
 
 const App = () => (
     <Provider store={store}>

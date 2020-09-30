@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import HForm, { getValue } from '../index.js';
 import { Form, Button } from 'antd';
-import configs from './example_configs.js';
+import demoConfigs from './configs.js';
 
 const ExampleDemo = (props) => {
-    const defValues = getValue(configs);
+    const defValues = getValue(demoConfigs);
     const [values, setValues] = useState(defValues);
     const [form] = Form.useForm();
     const onChange = ({ id, value }) => {
@@ -35,7 +35,7 @@ const ExampleDemo = (props) => {
             </div>
             <HForm
                 cols={1}
-                configs={configs}
+                configs={demoConfigs}
                 values={values}
                 onChange={onChange}
                 formApi={{
