@@ -23,5 +23,8 @@ module.exports = {
     modules: false,
     performance: false,
   },
+  headers: {
+    // "Content-Type": "text/html;charset=GBK",
+  },
   clientLogLevel: 'none',
 }

@@ -24,18 +24,10 @@ export default {
     },
     effects: {
         async fetch({ payload }, { getState, dispatch }) {
-            // dispatch({
-            //     type: 'loading/show',
-            //     payload: { namespace: 'user', action: 'fetch' }
-            // });
-            // dispatch({ type: 'car/update', payload: { app: 'IE' } });
+            const { loading } = getState();
             const data = await zmCustormCard(payload);
             console.log('data>>>', data);
             dispatch({ type: 'user/update', payload: { address: data } });
-            // dispatch({
-            //     type: 'loading/hide',
-            //     payload: { namespace: 'user', action: 'fetch' }
-            // });
         },
     },
 }

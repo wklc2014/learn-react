@@ -50,7 +50,7 @@ HModelLoading.prototype.createModel = function() {
 HModelLoading.prototype.createActions = function() {
     const { configs, hmodel: { actions, effects, dispatch } } = this;
     Object.keys(actions).forEach(namespace => {
-        if (namespace === configs.name || !actions[namespace]) return;
+        if (namespace === configs.name) return;
         // map over effects within models
         Object.keys(actions[namespace]).forEach(action => {
             if (actions[namespace][action].isEffect && effects[`${namespace}/${action}`]) {

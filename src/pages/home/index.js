@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom';
 import { Button, Spin } from 'antd';
 import hmodel from '@models/index.js';
+import PageLearn from '@pages/home/learn.js';
 
 @connect((state) => {
     const { car = {}, user = {}, loading = {} } = state;
@@ -57,9 +58,10 @@ class Home extends Component {
                 <div className="mb16">
                     <Button onClick={this.handleClick}>{count}</Button>
                 </div>
-                <div>
+                <div className="mb16">
                     <Button onClick={this.handleFetch}>{app}</Button>
                 </div>
+                <PageLearn />
             </Spin>
         );
     }

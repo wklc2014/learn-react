@@ -40,7 +40,6 @@ HModel.prototype.createStore = function(middlewares = []) {
     }
 
     const middleware = applyMiddleware(
-        thunkMiddleware,
         routerMiddleware(),
         ...middlewares,
         createMiddleware(),
@@ -127,6 +126,8 @@ HModel.prototype.createReducers = function(modelName, reducers = {}, initState) 
 
 // 验证 modelConfig
 HModel.prototype.validateModel = function(modelConfig) {
+    const self = this;
+
     const { name, state = {}, reducers, effects } = modelConfig || {};
 
     // model.name 必须是字符串
@@ -134,12 +135,8 @@ HModel.prototype.validateModel = function(modelConfig) {
         throw new Error(`Model name must be a valid string!`);
     }
 
-    if (name === 'routing') {
-        throw new Error(`Model name can not be "routing", it is used by react-router-redux!`)
-    }
-
     // model 不能重复创建
-    if (this.reducers[name]) {
+    if (self.reducers[name]) {
         throw new Error(`Model "${name}" has been created, please select another name!`);
     }
 
